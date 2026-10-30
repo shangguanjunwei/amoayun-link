@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 /**
- * Add dsh-amoayun-link-plugin to a DeepSeek Harness profile's bundle list.
+ * Add @amoayun/dsh-amoayun-link-plugin to a DeepSeek Harness profile's bundle list.
  *
  * Run this after installing the package into the profile:
- *   dsh plugin --profile web add /path/to/dsh-amoayun-link-plugin
- *   node /path/to/dsh-amoayun-link-plugin/scripts/register.mjs web
+ *   dsh plugin --profile web add @amoayun/dsh-amoayun-link-plugin
+ *   node /path/to/@amoayun/dsh-amoayun-link-plugin/scripts/register.mjs web
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 
-const PLUGIN = 'dsh-amoayun-link-plugin'
+const PLUGIN = '@amoayun/dsh-amoayun-link-plugin'
 const dshHome = (process.env.DSH_HOME ?? '').trim() || join(homedir(), '.dsh')
 const profileName =
   (process.argv[2] ?? '').trim() || (process.env.DSH_PROFILE ?? '').trim() || 'web'

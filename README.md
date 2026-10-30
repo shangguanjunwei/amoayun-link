@@ -6,6 +6,8 @@ Amoayun Link 不依赖 Electron，也不修改 DSH 主体。安装到 DSH profil
 
 当前版本：`2.3.4`
 
+npm 包名：`@amoayun/dsh-amoayun-link-plugin`
+
 ---
 
 ## 功能
@@ -128,14 +130,16 @@ send_chat_media
 
 ### 从 npm 安装
 
+> 发布前需要拥有或加入 npm 的 `@amoayun` scope。
+
 ```bash
-dsh plugin --profile web add dsh-amoayun-link-plugin
+dsh plugin --profile web add @amoayun/dsh-amoayun-link-plugin
 ```
 
 注册到 profile 的 bundle 列表：
 
 ```bash
-node "$DSH_HOME/profiles/web/node_modules/dsh-amoayun-link-plugin/scripts/register.mjs" web
+node "$DSH_HOME/profiles/web/node_modules/@amoayun/dsh-amoayun-link-plugin/scripts/register.mjs" web
 ```
 
 启动：
@@ -165,14 +169,14 @@ dsh web
 ```json
 {
   "dependencies": {
-    "dsh-amoayun-link-plugin": "file:/absolute/path/to/amoayun-link"
+    "@amoayun/dsh-amoayun-link-plugin": "file:/absolute/path/to/amoayun-link"
   },
   "dsh": {
     "profile": {
       "bundles": [
         "@deepseek-ai/dsh-base",
         "@deepseek-ai/dsh-web-app",
-        "dsh-amoayun-link-plugin"
+        "@amoayun/dsh-amoayun-link-plugin"
       ]
     }
   }
@@ -190,7 +194,7 @@ npm 安装时依赖值是版本号，而不是 `file:` 路径。
 ```yaml
 - insert:
     - id: dsh-amoayun-link-plugin
-      name: dsh-amoayun-link-plugin
+      name: "@amoayun/dsh-amoayun-link-plugin"
       config:
         # Harness home；默认取 DSH_HOME
         dataDir: /path/to/harness-home

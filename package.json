@@ -1,5 +1,5 @@
 {
-  "name": "dsh-amoayun-link-plugin",
+  "name": "@amoayun/dsh-amoayun-link-plugin",
   "version": "2.3.4",
   "private": false,
   "description": "Standalone Amoayun Link bridge and control panel plugin for DeepSeek Harness",
