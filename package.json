@@ -1,23 +1,23 @@
 {
   "name": "dsh-amoayun-link-plugin",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "private": false,
   "description": "Standalone Amoayun Link bridge and control panel plugin for DeepSeek Harness",
   "type": "module",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "exports": {
     ".": {
-      "default": "./lib/index.js"
+      "default": "./dist/index.js"
     },
     "./cordis.patch.yml": "./cordis.patch.yml",
     "./package.json": "./package.json"
   },
   "files": [
-    "lib/**/*.js",
+    "dist/**/*.js",
+    "scripts/register.mjs",
     "cordis.patch.yml",
     "README.md",
-    "scripts/**/*.mjs",
-    "vendor/**/*"
+    "THIRD_PARTY_NOTICES.md"
   ],
   "dsh": {
     "bundle": {
@@ -32,12 +32,12 @@
     "@deepseek-ai/cordis": "~4.0.5",
     "@deepseek-ai/dsh-agent": ">=0.2.1-rc.3 <0.3.0",
     "@deepseek-ai/dsh-llm": ">=0.2.1-rc.3 <0.3.0",
+    "@deepseek-ai/dsh-scope": ">=0.2.1-rc.3 <0.3.0",
     "@deepseek-ai/dsh-session": ">=0.2.1-rc.3 <0.3.0",
     "@deepseek-ai/dsh-skill-filesystem": ">=0.2.1-rc.3 <0.3.0",
+    "@deepseek-ai/dsh-tools": ">=0.2.1-rc.3 <0.3.0",
     "@deepseek-ai/dsh-user-approval": ">=0.2.1-rc.3 <0.3.0",
-    "@deepseek-ai/schemastery": "~3.18.5",
-    "@deepseek-ai/dsh-scope": ">=0.2.1-rc.3 <0.3.0",
-    "@deepseek-ai/dsh-tools": ">=0.2.1-rc.3 <0.3.0"
+    "@deepseek-ai/schemastery": "~3.18.5"
   },
   "keywords": [
     "deepseek",
@@ -48,5 +48,18 @@
     "link",
     "messaging",
     "agent"
-  ]
+  ],
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "javascript-obfuscator": "^5.9.0"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node --check lib/index.js && node --check lib/service.js && node --check lib/ui.js && node --check lib/upstream/client.js && node --check lib/upstream/runtime.js",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run build"
+  },
+  "bin": {
+    "amoayun-link-register": "scripts/register.mjs"
+  }
 }

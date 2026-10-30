@@ -4,7 +4,7 @@
 
 Amoayun Link 不依赖 Electron，也不修改 DSH 主体。安装到 DSH profile 后，它会在 DSH Web 右下角提供一个悬浮入口，用扫码方式绑定消息账号，并把消息接入 DSH Agent。
 
-当前版本：`2.3.3`
+当前版本：`2.3.4`
 
 ---
 
@@ -126,28 +126,41 @@ send_chat_media
 
 ## 安装
 
-### 1. 获取代码
+### 从 npm 安装
+
+```bash
+dsh plugin --profile web add dsh-amoayun-link-plugin
+```
+
+注册到 profile 的 bundle 列表：
+
+```bash
+node "$DSH_HOME/profiles/web/node_modules/dsh-amoayun-link-plugin/scripts/register.mjs" web
+```
+
+启动：
+
+```bash
+dsh web
+```
+
+打开 DSH Web 后，右下角会出现「Amoayun Link」入口。
+
+### 从源码安装
 
 ```bash
 git clone git@github.com:shangguanjunwei/amoayun-link.git
 cd amoayun-link
-```
-
-### 2. 安装到 DSH profile
-
-QR 生成依赖已内置在 `vendor/`，无需额外安装。
-
-```bash
+npm install
+npm run build
 dsh plugin --profile web add "$PWD"
-```
-
-### 3. 注册到 profile bundle
-
-```bash
 node scripts/register.mjs web
+dsh web
 ```
 
-等价于在 `$DSH_HOME/profiles/web/package.json` 中确认：
+`npm run build` 会生成混淆后的 `dist/index.js`，源码不会进入 npm 包。
+
+### profile 中的等价配置
 
 ```json
 {
@@ -166,13 +179,7 @@ node scripts/register.mjs web
 }
 ```
 
-### 4. 启动
-
-```bash
-dsh web
-```
-
-打开 DSH Web 后，右下角会出现「Amoayun Link」入口。
+npm 安装时依赖值是版本号，而不是 `file:` 路径。
 
 ---
 
@@ -339,13 +346,49 @@ amoayun-link-<accountId>-<contactHash>
 ## 兼容性
 
 - DSH `0.2.1-rc.3` / `0.2.1-rc.4`；
-- 插件为纯 ESM，无编译步骤；
+- 发布产物为纯 ESM 单文件；源码构建需要 esbuild 和 javascript-obfuscator；
 - QR 生成库已内置在 `vendor/qrcode`；
 - 使用 DSH 的 `webServer`、`workspaceRegistry`、`agents`、`skills`、`systemPrompt`、`tools` 等 Host 接口。
 
 ---
 
-## 开发
+## 开发与打包
+
+源码运行：
+
+```bash
+npm install
+npm run build
+npm run check
+```
+
+构建：
+
+```bash
+npm run build
+```
+
+构建流程：
+
+```text
+lib/ + vendor/ → esbuild bundle → javascript-obfuscator → dist/index.js
+```
+
+发布包只包含：
+
+- `dist/index.js`
+- `cordis.patch.yml`
+- `README.md`
+- `THIRD_PARTY_NOTICES.md`
+- `scripts/register.mjs`
+
+发布前检查：
+
+```bash
+npm pack --dry-run
+npm run build
+node --check dist/index.js
+```
 
 语法检查：
 
@@ -373,3 +416,4 @@ node --check lib/upstream/runtime.js
 | `2.3.1` | 修复媒体工具 `this` 绑定 |
 | `2.3.2` | 修复出站消息复用入站 `client_id` 导致不显示 |
 | `2.3.3` | 修复媒体 `aes_key` 编码 |
+| `2.3.4` | 增加 esbuild + javascript-obfuscator 发布构建，npm 包只发布混淆后的 `dist/` |
