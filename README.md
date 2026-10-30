@@ -1,8 +1,8 @@
 # Amoayun Link
 
-把消息账号接入 DeepSeek Harness 的独立 Host 插件。
+把 vx 接入 DeepSeek Harness 的独立 Host 插件。
 
-Amoayun Link 不依赖 Electron，也不修改 DSH 主体。安装到 DSH profile 后，它会在 DSH Web 右下角提供一个悬浮入口，用扫码方式绑定消息账号，并把消息接入 DSH Agent。
+Amoayun Link 不依赖 Electron，也不修改 DSH 主体。安装到 DSH profile 后，它会在 DSH Web 右下角提供一个悬浮入口，用扫码方式绑定 vx，并把消息接入 DSH Agent。
 
 当前版本：`2.3.4`
 
