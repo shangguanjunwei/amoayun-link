@@ -51,11 +51,11 @@ npm 包名：`@amoayun/dsh-amoayun-link-plugin`
 
 安装完成后点击「立即启用」。
 
-如果 DSH 提示需要重启，重启桌面端。
+启用后请直接重启 DSH 桌面端。无论是否出现重启提示，都重启一次，确保插件完整加载。
 
 ### 5. 打开 Amoayun Link
 
-重启或启用后，DSH 窗口右下角会出现：
+重启 DSH 后，窗口右下角会出现：
 
 ```text
 Amoayun Link
