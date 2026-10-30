@@ -1,0 +1,6 @@
+# Standalone Amoayun Link bridge and control panel for DeepSeek Harness.
+- insert:
+    - id: dsh-amoayun-link-plugin
+      name: 'dsh-amoayun-link-plugin'
+      config:
+        autoReply: true
