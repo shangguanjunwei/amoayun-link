@@ -1,8 +1,8 @@
 # Amoayun Link
 
-把 vx 接入 DeepSeek Harness 的独立 Host 插件。
+把 vx 接入 DeepSeek Harness 桌面端的独立 Host 插件。
 
-Amoayun Link 不依赖 Electron，也不修改 DSH 主体。安装到 DSH profile 后，它会在 DSH Web 右下角提供一个悬浮入口，用扫码方式绑定 vx，并把消息接入 DSH Agent。
+安装后，DSH 桌面端右下角会出现「Amoayun Link」悬浮入口。用 vx 扫码绑定账号后，联系人的消息会进入 DSH Agent，回复会直接发回聊天。
 
 当前版本：`2.3.4`
 
@@ -10,32 +10,107 @@ npm 包名：`@amoayun/dsh-amoayun-link-plugin`
 
 ---
 
-## 功能
+## 接入前准备
 
-### 消息接入
+- 已安装并打开 DeepSeek Harness 桌面端；
+- 插件已经发布到 npm，或你拿到的是已经构建好的本地插件目录；
+- 准备一个用于接入的 vx 账号；
+- 建议先确认该账号只用于可信联系人。
 
-- 多账号扫码登录、断线重连；
-- 文本、图片、文件、视频、语音消息进入 Agent；
-- 语音优先使用消息自带的转写文本，音频始终保存；
-- 引用消息优先读取内联内容，只有消息 ID 时从该用户的聊天记录还原；
-- 正在输入状态：处理期间显示 typing，每 5 秒续期，结束、停止或失败时取消；
-- 每条入站消息都会产生一条出站文字回复；无文本、失败、手动停止时也有兜底回复；
-- 新联系人第一次发消息时，把欢迎语合并进该条回复，每个联系人只欢迎一次；
-- 纯文本通道：禁用 `ask_user_question`、`present` 等桌面交互工具，选项用 `1/2/3` 文本列出；
-- 超长回复按 4000 字自动分片发送，不静默截断。
+---
 
-### 会话与工作区
+## 桌面端接入
 
-- 启动时自动创建或复用名为 `amoayun-link` 的 DSH 工作区；
-- 所有账号、所有联系人的 session 都挂载在这个工作区；
-- **每个联系人使用独立 DSH session**，不同联系人之间不会串聊天上下文；
-- 会话标题使用账号备注名；
-- 断开连接只停止消息传输，不销毁 Agent/session，会话继续显示在工作区；
-- 删除账号、移除插件都不会删除工作区、session 日志或用户文件。
+### 1. 打开插件管理
 
-### 文件与记录
+在 DSH 桌面端左侧边栏进入：
 
-每个联系人都有独立目录：
+```text
+插件
+```
+
+### 2. 添加插件
+
+点击「添加插件」。
+
+在插件包名输入框中填写：
+
+```text
+@amoayun/dsh-amoayun-link-plugin
+```
+
+如果拿到的是本地构建目录，也可以在同一个入口选择本地目录，指向插件的包目录。
+
+### 3. 安装
+
+确认 DSH 显示的包信息、版本和来源无误后，点击「安装」。
+
+第三方插件会显示信任提示。只安装你信任的来源。
+
+### 4. 启用插件
+
+安装完成后点击「立即启用」。
+
+如果 DSH 提示需要重启，重启桌面端。
+
+### 5. 打开 Amoayun Link
+
+重启或启用后，DSH 窗口右下角会出现：
+
+```text
+Amoayun Link
+```
+
+点击悬浮按钮打开面板。
+
+### 6. 绑定 vx
+
+进入「账户设置」：
+
+1. 点击「添加 vx」；
+2. 输入账号备注，例如「工作号」；
+3. 点击扫码登录；
+4. 用 vx 扫描二维码并确认授权；
+5. 登录成功后，账号状态会变为在线。
+
+同一个插件支持多个 vx 账号，后续重复添加即可。
+
+### 7. 开始聊天
+
+账号在线后，让联系人给这个 vx 发一条消息。
+
+第一条消息会自动进入 DSH，并创建对应会话。此后：
+
+- 文本消息会直接进入 Agent；
+- 图片、文件、视频、语音会保存并交给 Agent；
+- Agent 的回复会发回该联系人；
+- 每个联系人拥有独立会话，不会串上下文。
+
+---
+
+## 接入后可以实现的功能
+
+### 聊天
+
+- 接收文本、图片、文件、视频、语音；
+- 语音优先使用转写文本，音频文件始终保存；
+- 引用消息还原；
+- 回答中自动显示「正在输入」；
+- 长回复自动分片，不会静默截断；
+- 每条消息都有文字兜底回复。
+
+### Agent
+
+- 每个联系人独立 DSH session；
+- 所有会话统一显示在 `amoayun-link` 工作区；
+- 联系人之间不会共享聊天上下文；
+- Agent 可以读取该联系人的图片、文件、视频和语音记录；
+- Agent 可以生成文件；
+- Agent 可以通过工具把工作区内的图片、视频、文件发回给联系人。
+
+### 文件
+
+每个联系人拥有独立目录：
 
 ```text
 $DSH_HOME/amoayun-link/users/<accountId>/<contactHash>/
@@ -46,209 +121,122 @@ $DSH_HOME/amoayun-link/users/<accountId>/<contactHash>/
   files/
 ```
 
-- `history/`：按日期拆分的 append-only 聊天记录；
-- `media/`：入站图片、文件、视频、语音；
+- `history/`：按日期保存聊天记录；
+- `media/`：保存收到的图片、文件、视频、语音；
 - `files/`：Agent 生成文件的默认目录；
-- `context-token.json`：该联系人的回复上下文 token；
-- `contact.json`：原始 sender/chat 信息。
-
-旧版单个 `history.jsonl` 会在启动时自动迁移到按日期文件。
+- `context-token.json`：保存该联系人的回复上下文；
+- `contact.json`：保存联系人的原始标识。
 
 ### 面板
 
-- 「插件设置 / 账户设置」两个 tab，带切换动画；
-- 工作区固定为 `$DSH_HOME/amoayun-link`，面板只读；
-- 账户详情展示工作区、账号目录、技能目录、用户目录，以及每个用户的目录、聊天记录、媒体目录；
-- 所有路径可直接点击打开；
-- 显示每个用户目录占用、账号合计、全部用户文件总占用；
-- 左侧竖排账号 tab，单账号也保留；
-- 悬浮按钮位置保存在当前浏览器；
-- 默认中文，`AMOAYUN_LINK_LANG=en` 切换英文。
+「插件设置」和「账户设置」两个 tab：
 
-### 访问控制
+- 插件设置：工作区、硬打断；
+- 账户设置：账号列表、扫码登录、联系人列表、访问控制、存储占用；
+- 账户详情显示工作区、账号目录、技能目录、用户目录；
+- 每个联系人的目录、聊天记录、媒体目录都可直接点击打开；
+- 显示每个用户占用、账号合计、全部用户文件总占用。
 
-账号详情里可开启：
+### 运行控制
+
+- 支持手动「停止分析」；
+- 支持「新消息硬打断」开关：
+  - 默认关闭；
+  - 开启后，新消息会取消当前分析，旧回复丢弃，只处理最新消息。
+
+---
+
+## 权限控制
+
+### 1. 先决定谁可以使用 Agent
+
+账户详情里有：
 
 ```text
 仅允许已授权联系人
 ```
 
-开启后：
+默认关闭。
 
-- 只有 `allowFrom` 中的 sender 能进入 Agent；
-- 未授权用户不创建 session，不进入 Agent，只收到授权提示；
-- 可手动授权/取消授权；
-- 自动生成 6 位配对码，用户回复配对码即可自助授权；
-- 配对码可在面板重新生成。
+关闭时：
 
-默认关闭，不影响已有账号。
+- 任何能给该 vx 发消息的人都可以进入 Agent；
+- 适合只绑定私人账号的场景。
 
-### 出站媒体
+开启时：
 
-Agent 可调用工具：
+- 只有已授权联系人能进入 Agent；
+- 未授权联系人不会创建 session、不会调用工具、不会触发模型；
+- 未授权联系人只会收到授权提示。
 
-```text
-send_chat_media
-```
+### 2. 联系人授权
 
-参数：
+在账户详情的联系人列表里，可以直接：
 
-- `path`：工作区内的本地文件路径；
-- `caption`：可选文字说明。
+- 授权；
+- 取消授权。
 
-支持：
+取消授权不会删除：
 
-- 图片：png、jpg、jpeg、gif、webp、bmp
-- 视频：mp4、mov、webm、mkv、avi
-- 其他：作为普通文件发送
+- 聊天记录；
+- 媒体文件；
+- 用户目录；
+- DSH session。
 
-发送链路：
+### 3. 配对码
 
-```text
-读取文件 → getuploadurl → AES-128-ECB 加密 → 上传 CDN
-→ 取 x-encrypted-param → 构造 image/video/file item → sendmessage
-```
+开启访问控制后会自动生成 6 位配对码。
 
-安全限制：
+流程：
 
-- 只能发送 `amoayun-link` 工作区内的文件；
-- 默认单文件上限 100 MiB，可通过 `mediaOutboundMaxBytes` 调整；
-- 只在当前联系人会话内可用。
+1. 管理员在面板看到配对码；
+2. 把配对码发给可信联系人；
+3. 对方回复配对码；
+4. 自动加入已授权列表；
+5. 之后可以正常聊天。
 
----
+配对码可以重新生成，旧码立即失效。
 
-## 要求
+### 4. Agent 权限
 
-- DeepSeek Harness `>= 0.2.1-rc.3 < 0.3.0`（兼容 `0.2.1-rc.3` / `rc.4`）
-- Node.js `>= 22.19`
-- 一个可用的 DSH Web profile（默认 `web`）
-- `pnpm`
-
----
-
-## 安装
-
-### 从 npm 安装
-
-> 发布前需要拥有或加入 npm 的 `@amoayun` scope。
-
-```bash
-dsh plugin --profile web add @amoayun/dsh-amoayun-link-plugin
-```
-
-注册到 profile 的 bundle 列表：
-
-```bash
-node "$DSH_HOME/profiles/web/node_modules/@amoayun/dsh-amoayun-link-plugin/scripts/register.mjs" web
-```
-
-启动：
-
-```bash
-dsh web
-```
-
-打开 DSH Web 后，右下角会出现「Amoayun Link」入口。
-
-### 从源码安装
-
-```bash
-git clone git@github.com:shangguanjunwei/amoayun-link.git
-cd amoayun-link
-npm install
-npm run build
-dsh plugin --profile web add "$PWD"
-node scripts/register.mjs web
-dsh web
-```
-
-`npm run build` 会生成混淆后的 `dist/index.js`，源码不会进入 npm 包。
-
-### profile 中的等价配置
-
-```json
-{
-  "dependencies": {
-    "@amoayun/dsh-amoayun-link-plugin": "file:/absolute/path/to/amoayun-link"
-  },
-  "dsh": {
-    "profile": {
-      "bundles": [
-        "@deepseek-ai/dsh-base",
-        "@deepseek-ai/dsh-web-app",
-        "@amoayun/dsh-amoayun-link-plugin"
-      ]
-    }
-  }
-}
-```
-
-npm 安装时依赖值是版本号，而不是 `file:` 路径。
-
----
-
-## 配置
-
-在 DSH profile 的插件配置中覆盖：
-
-```yaml
-- insert:
-    - id: dsh-amoayun-link-plugin
-      name: "@amoayun/dsh-amoayun-link-plugin"
-      config:
-        # Harness home；默认取 DSH_HOME
-        dataDir: /path/to/harness-home
-
-        # 上游网关；留空使用内置默认值
-        baseUrl: ''
-
-        # 模型路由；留空使用 DSH 默认模型
-        provider: ''
-        model: ''
-
-        # 消息 session 的权限 preset
-        permissionPreset: danger-full-access
-
-        # 消息 session 的 agent preset；留空使用默认
-        agentPreset: ''
-
-        # 是否自动回复；false 时只记录消息
-        autoReply: true
-
-        # 新联系人首次消息的欢迎语；留空关闭
-        welcomeMessage: 你好，我是 Amoayun Link 助手。请直接告诉我你想做什么；需要选择时，我会用 1/2/3 或 a/b/c 以文字发给你。
-
-        # 媒体
-        mediaMaxBytes: 104857600
-        mediaTimeoutMs: 60000
-        mediaOutboundMaxBytes: 104857600
-```
-
-### 环境变量
-
-| 变量 | 作用 |
-| --- | --- |
-| `DSH_HOME` | DSH home，默认 `~/.dsh` |
-| `AMOAYUN_LINK_DATA_DIR` | 覆盖插件使用的 Harness home |
-| `AMOAYUN_LINK_LANG` | `en` 切换英文面板 |
-| `AMOAYUN_LINK_DEV` | `1` 时启用开发用 `/dev/message` 接口 |
-
-### 面板设置
-
-「新消息硬打断」在面板中管理，默认关闭。
-
-开启后：
-
-- 新消息到达时取消当前 turn；
-- 旧消息不再回复；
-- 只处理并回复最新消息。
-
----
-
-## 数据目录
+消息会话默认使用：
 
 ```text
-$DSH_HOME/amoayun-link/
+danger-full-access
+```
+
+并对权限请求自动批准。
+
+这意味着已授权联系人可以让 Agent：
+
+- 执行命令；
+- 读写工作区文件；
+- 调用工具；
+- 发送工作区内的文件。
+
+访问控制只决定「谁可以触发 Agent」，不限制已授权联系人的 Agent 权限。
+
+所以：
+
+- 只授权可信联系人；
+- 不要公开配对码；
+- 不要把敏感凭据放在工作区；
+- 不要把 `danger-full-access` 当成安全沙箱。
+
+---
+
+## 数据与保留
+
+插件数据默认在：
+
+```text
+$DSH_HOME/amoayun-link
+```
+
+结构：
+
+```text
+amoayun-link/
   accounts.json
   settings.json
   accounts/
@@ -264,160 +252,96 @@ $DSH_HOME/amoayun-link/
         contact.json
         context-token.json
         history/
-          YYYY-MM-DD.jsonl
         media/
-          YYYY-MM-DD/
         files/
 ```
 
-说明：
-
-- `settings.json`：插件级设置，例如硬打断；
-- `accounts/<id>/access.json`：账号访问控制、`allowFrom`、配对码；
-- `accounts/<id>/state.json`：上游消息游标；
-- `accounts/<id>/welcomed.json`：已欢迎联系人；
-- `accounts/<id>/skills/`：该账号的 skills，同一账号的联系人共享；
-- `users/`：按联系人隔离的聊天记录、媒体和生成文件。
-
-DSH session 日志位于：
+DSH session 日志在：
 
 ```text
-$DSH_HOME/sessions/
+$DSH_HOME/sessions
 ```
 
-插件不会删除这些日志。
+以下操作不会删除工作区、用户文件或会话日志：
 
-默认工作区：
-
-```text
-$DSH_HOME/amoayun-link
-```
-
-如果未设置 `DSH_HOME`，使用：
-
-```text
-~/.dsh/amoayun-link
-```
+- 断开账号；
+- 删除账号；
+- 移除插件；
+- 升级插件。
 
 ---
 
-## 工作区与 session
+## 出站媒体
 
-- 所有账号共用 `amoayun-link` 工作区；
-- 每个联系人一个独立 session，session ID 形如：
-
-```text
-amoayun-link-<accountId>-<contactHash>
-```
-
-- 所有 session 的 `cwd` 都是 `$DSH_HOME/amoayun-link`；
-- 因此在 DSH 侧边栏中，所有会话都归在 `amoayun-link` 工作区；
-- 联系人之间不会因为共用工作区而共享聊天上下文。
-
-断开连接、删除账号或移除插件时：
-
-- 停止消息运行时；
-- 保留 Agent/session；
-- 保留 `users/`、`media/`、`history/`、`files/`；
-- 保留 `$DSH_HOME/sessions`。
-
----
-
-## 安全说明
-
-消息 session 默认使用 `danger-full-access`，并自动批准权限请求。
-
-这意味着已授权联系人可以让 Agent：
-
-- 执行命令；
-- 读写工作区文件；
-- 调用工具；
-- 发送工作区内的文件。
-
-所以：
-
-- 只绑定可信账号；
-- 建议开启「仅允许已授权联系人」；
-- 不要把配对码发给不可信的人；
-- 不要把敏感凭据放在工作区。
-
-访问控制只决定“谁可以触发 Agent”，不限制已授权用户的 Agent 权限。
-
-生成文件默认写入该联系人的 `files/`，但这只是每轮上下文约束，不是 OS 级沙箱。完全权限下，Agent 仍可能通过绝对路径或命令写到工作区其他位置。
-
----
-
-## 兼容性
-
-- DSH `0.2.1-rc.3` / `0.2.1-rc.4`；
-- 发布产物为纯 ESM 单文件；源码构建需要 esbuild 和 javascript-obfuscator；
-- QR 生成库已内置在 `vendor/qrcode`；
-- 使用 DSH 的 `webServer`、`workspaceRegistry`、`agents`、`skills`、`systemPrompt`、`tools` 等 Host 接口。
-
----
-
-## 开发与打包
-
-源码运行：
-
-```bash
-npm install
-npm run build
-npm run check
-```
-
-构建：
-
-```bash
-npm run build
-```
-
-构建流程：
+Agent 可以使用工具：
 
 ```text
-lib/ + vendor/ → esbuild bundle → javascript-obfuscator → dist/index.js
+send_chat_media
+```
+
+参数：
+
+- `path`：工作区内的本地文件路径；
+- `caption`：可选文字说明。
+
+支持图片、视频和普通文件。
+
+发送链路：
+
+```text
+读取文件
+→ AES-128-ECB 加密
+→ 上传 CDN
+→ 生成图片/视频/文件消息
+→ 发送给当前联系人
+```
+
+默认单个文件上限 100 MiB。
+
+---
+
+## 限制
+
+- 桌面端插件运行在 DSH Host 中，不是 OS 沙箱；
+- 已授权用户的 Agent 可以执行工作区内的操作；
+- 生成文件默认进入该联系人的 `files/`，但完全权限下无法阻止 Agent 通过绝对路径写到别处；
+- 语音消息若没有转写文本，只保存音频，不自动识别；
+- 正在输入依赖上游返回 `typing_ticket`，不保证所有环境都显示。
+
+---
+
+## 版本兼容
+
+- DeepSeek Harness `>= 0.2.1-rc.3 < 0.3.0`；
+- 支持 DSH 桌面端；
+- 插件为纯 ESM；
+- 发布包只包含混淆后的 `dist/index.js`，不包含源码。
+
+---
+
+## 开发与构建
+
+仅开发者需要。仓库提供 `scripts/build.mjs`，负责 esbuild 打包和 javascript-obfuscator 混淆，生成：
+
+```text
+dist/index.js
+```
+
+构建产物：
+
+```text
+dist/index.js
 ```
 
 发布包只包含：
 
-- `dist/index.js`
-- `cordis.patch.yml`
-- `README.md`
-- `THIRD_PARTY_NOTICES.md`
-- `scripts/register.mjs`
-
-发布前检查：
-
-```bash
-npm pack --dry-run
-npm run build
-node --check dist/index.js
+```text
+dist/index.js
+cordis.patch.yml
+README.md
+THIRD_PARTY_NOTICES.md
+scripts/register.mjs
+package.json
 ```
 
-语法检查：
-
-```bash
-node --check lib/index.js
-node --check lib/service.js
-node --check lib/ui.js
-node --check lib/upstream/client.js
-node --check lib/upstream/runtime.js
-```
-
-本地加载时，插件通过 DSH 的 `webServer` 注入面板，通过 `/amoayun-link-api` 提供控制接口；不修改 DSH 主体，也不需要 Electron。
-
----
-
-## 版本摘要
-
-| 版本 | 主要变化 |
-| --- | --- |
-| `1.x` | 多账号、扫码登录、固定工作区、per-user 文件/记录、面板、硬打断 |
-| `2.0.0` | 账号级访问控制、联系人授权 |
-| `2.1.0` | 6 位配对码自助授权 |
-| `2.2.0` | 正在输入状态 |
-| `2.3.0` | 出站媒体工具 `send_chat_media` |
-| `2.3.1` | 修复媒体工具 `this` 绑定 |
-| `2.3.2` | 修复出站消息复用入站 `client_id` 导致不显示 |
-| `2.3.3` | 修复媒体 `aes_key` 编码 |
-| `2.3.4` | 增加 esbuild + javascript-obfuscator 发布构建，npm 包只发布混淆后的 `dist/` |
+混淆只提高阅读成本，不能保护协议、密钥或核心逻辑；不要依赖混淆保护敏感信息。
