@@ -8,6 +8,8 @@
 
 npm 包名：`@amoayun/dsh-amoayun-link-plugin`
 
+macOS 图文安装教程：[docs/install-guide.html](https://github.com/shangguanjunwei/amoayun-link/blob/main/docs/install-guide.html)
+
 ---
 
 ## 接入前准备
