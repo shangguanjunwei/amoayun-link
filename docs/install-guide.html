@@ -76,6 +76,21 @@ h1 em{font-style:normal;color:var(--green-dark)}
 .privacy{display:flex;gap:10px;align-items:flex-start;background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 14px;margin:20px 0 28px;color:#1d4ed8;font-size:11.5px}.privacy b{color:#1e3a8a}
 .footer{border-top:1px solid var(--line);padding:26px 0 40px;color:#98a2b3;font-size:11px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.footer strong{color:#475467}
 .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:#0f172a;color:#fff;border-radius:999px;padding:10px 16px;font-size:12px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:120;box-shadow:0 14px 30px rgba(15,23,42,.3)}.toast.show{opacity:1;transform:translate(-50%,0)}
+.autoplay-bar{position:fixed;right:22px;top:18px;z-index:140;display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.9);border:1px solid rgba(230,234,240,.95);border-radius:999px;padding:5px;box-shadow:0 12px 35px rgba(16,24,40,.12);backdrop-filter:blur(14px);font-family:inherit}
+.autoplay-dot{width:6px;height:6px;border-radius:50%;background:#07c160;margin:0 2px 0 7px;box-shadow:0 0 0 4px rgba(7,193,96,.12);animation:pulse 2s ease-out infinite}
+.autoplay-toggle,.autoplay-stop{border:0;background:transparent;color:#344054;border-radius:999px;padding:8px 11px;font:inherit;font-size:11px;font-weight:800;cursor:pointer;transition:background .2s,color .2s}
+.autoplay-toggle:hover,.autoplay-stop:hover{background:#ecfdf5;color:#047857}.autoplay-stop{display:none;color:#b45309;padding-left:8px;padding-right:8px}.autoplay-stop.show{display:inline-block}
+.auto-start{border:0;cursor:pointer;font:inherit;font-size:13px;font-weight:700;background:#ecfdf5;border-color:#bbf7d0;color:#047857}.auto-start:hover{background:#d1fae5}
+.auto-cursor{position:fixed;left:50vw;top:50vh;z-index:200;width:20px;height:24px;pointer-events:none;opacity:0;transform:translate(7px,7px);transition:left .65s cubic-bezier(.22,.8,.32,1),top .65s cubic-bezier(.22,.8,.32,1),opacity .25s;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25))}
+.auto-cursor:before{content:"";position:absolute;inset:0;background:#111827;clip-path:polygon(0 0,0 82%,22% 66%,38% 100%,51% 93%,34% 60%,60% 60%);}
+.auto-cursor.visible{opacity:1}.auto-cursor i{position:absolute;left:-14px;top:-14px;width:44px;height:44px;border-radius:50%;border:2px solid rgba(7,193,96,.7);opacity:0;transform:scale(.3)}.auto-cursor.clicking i{animation:clickPulse .55s ease-out}
+.step.auto-active .step-card{border-color:rgba(7,193,96,.5);box-shadow:0 20px 55px rgba(7,193,96,.14)}
+.shot{transition:transform .75s cubic-bezier(.22,.8,.32,1);transform-origin:var(--focus-x,50%) var(--focus-y,50%)}.step.auto-active .shot{transform:scale(1.018)}
+.mock{transition:transform .75s cubic-bezier(.22,.8,.32,1)}.step.auto-active .mock{transform:scale(1.008)}
+.hotspot.auto-clicked{border-color:#047857;box-shadow:0 0 0 9px rgba(7,193,96,.22),0 0 28px rgba(7,193,96,.55);transform:scale(.985);transition:transform .16s,box-shadow .16s}
+[data-auto-target].auto-clicked{outline:3px solid rgba(7,193,96,.6);outline-offset:4px;transition:outline-color .2s}
+@keyframes clickPulse{0%{opacity:1;transform:scale(.3)}100%{opacity:0;transform:scale(1.5)}}
+@media (max-width:900px){.autoplay-bar{right:10px;top:10px}.autoplay-toggle,.autoplay-stop{font-size:10px;padding:7px 8px}.autoplay-dot{display:none}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes pulse{0%{transform:scale(.86);opacity:.9}70%{transform:scale(1.16);opacity:0}100%{transform:scale(1.16);opacity:0}}
 @keyframes ring{0%{transform:scale(.92);opacity:.9}70%{transform:scale(1.08);opacity:0}100%{opacity:0}}
@@ -91,6 +106,12 @@ h1 em{font-style:normal;color:var(--green-dark)}
 </head>
 <body>
 <div class="progress" id="progress"></div>
+<div class="autoplay-bar" id="autoplayBar">
+  <span class="autoplay-dot"></span>
+  <button class="autoplay-toggle" id="autoplayToggle" type="button" aria-label="自动播放教程">▶ 自动播放</button>
+  <button class="autoplay-stop" id="autoplayStop" type="button" aria-label="停止自动播放">停止</button>
+</div>
+<div class="auto-cursor" id="autoCursor" aria-hidden="true"><i></i></div>
 <main class="shell">
   <header class="hero">
     <div class="hero-grid">
@@ -105,6 +126,7 @@ h1 em{font-style:normal;color:var(--green-dark)}
     </div>
         <div class="hero-actions">
           <a class="btn primary" href="#step-1">开始安装 <span>↓</span></a>
+          <button class="btn auto-start" type="button" data-autoplay>▶ 自动播放</button>
           <a class="btn" href="#faq">常见问题</a>
         </div>
         <div class="stats"><div class="stat"><b>13</b><span>步骤</span></div><div class="stat"><b>macOS</b><span>支持系统</span></div><div class="stat"><b>2.3.4</b><span>插件版本</span></div></div>
@@ -250,7 +272,7 @@ h1 em{font-style:normal;color:var(--green-dark)}
           <div class="menu-item">关于 DeepSeek Harness</div>
           <div class="menu-item">设置…</div>
           <div class="menu-sep"></div>
-          <div class="menu-item quit">退出 DeepSeek Harness <span>⌘Q</span></div>
+          <div class="menu-item quit" data-auto-target>退出 DeepSeek Harness <span>⌘Q</span></div>
         </div>
         <div class="restart-cursor"></div>
         <div class="restart-copy">
@@ -280,7 +302,7 @@ h1 em{font-style:normal;color:var(--green-dark)}
           </div>
         </div>
         <div class="launcher-pulse"></div>
-        <div class="fake-launcher">Amoayun Link <span>1</span></div>
+        <div class="fake-launcher" data-auto-target>Amoayun Link <span>1</span></div>
         <div class="launcher-arrow">点这里</div>
       </div>
         <p class="hint">如果看不到按钮，先确认插件已启用，再完全退出并重新打开 DSH。</p>
@@ -299,7 +321,7 @@ h1 em{font-style:normal;color:var(--green-dark)}
         <div class="panel-title">Amoayun Link</div>
         <div class="panel-sub">扫码接入 vx，文字、图片、文件和语音自动进入 Agent</div>
         <div class="panel-tabs"><span>插件设置</span><span class="active">账户设置</span></div>
-        <div class="panel-add-row"><div class="panel-input"><span>账号备注，例如：工作号</span></div><button>添加 vx</button></div>
+        <div class="panel-add-row"><div class="panel-input"><span>账号备注，例如：工作号</span></div><button data-auto-target>添加 vx</button></div>
         <div class="panel-account">
           <div class="account-avatar">消</div>
           <div><strong>工作号</strong><small>等待扫码</small></div>
@@ -328,7 +350,7 @@ h1 em{font-style:normal;color:var(--green-dark)}
         <div class="online-card">
           <div class="account-avatar">消</div>
           <div><strong>工作号</strong><small>已登录</small></div>
-          <span class="online-status"><i></i>在线</span>
+          <span class="online-status" data-auto-target><i></i>在线</span>
         </div>
         <div class="online-note">账号已连接，联系人消息会自动进入 Agent。</div>
         <div class="online-lines"><span></span><span></span><span></span></div>
@@ -349,7 +371,7 @@ h1 em{font-style:normal;color:var(--green-dark)}
         <div class="panel-title">账户详情</div>
         <div class="access-row">
           <div><strong>仅允许已授权联系人</strong><small>未授权用户不会进入 Agent</small></div>
-          <div class="switch on"><i></i></div>
+          <div class="switch on" data-auto-target><i></i></div>
         </div>
         <div class="pair-row">
           <span>配对码</span>
@@ -371,7 +393,7 @@ h1 em{font-style:normal;color:var(--green-dark)}
         
         
     <div class="mock mock-done" aria-label="安装完成示意图">
-      <div class="done-ring"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="23"></circle><path d="M14 27l8 8 16-17"></path></svg></div>
+      <div class="done-ring" data-auto-target><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="23"></circle><path d="M14 27l8 8 16-17"></path></svg></div>
       <h3>安装完成</h3>
       <p>现在可以让联系人发送一条测试消息。</p>
       <div class="fake-chat"><span>你好</span><span class="reply">已收到，我来帮你处理。</span></div>
@@ -410,6 +432,103 @@ async function copyText(text) {
   toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1600);
 }
 document.querySelectorAll('[data-copy]').forEach((button) => button.addEventListener('click', () => copyText(button.getAttribute('data-copy'))));
+
+const autoBar = document.getElementById('autoplayBar');
+const autoToggle = document.getElementById('autoplayToggle');
+const autoStop = document.getElementById('autoplayStop');
+const autoCursor = document.getElementById('autoCursor');
+let autoRunning = false;
+let autoDone = false;
+let autoWaitTimer = null;
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const wait = (ms) => new Promise((resolve) => { autoWaitTimer = setTimeout(resolve, ms); });
+function setAutoControls() {
+  if (autoRunning) {
+    autoToggle.textContent = '⏸ 暂停';
+    autoStop.classList.add('show');
+  } else {
+    autoToggle.textContent = autoDone ? '↻ 重播' : '▶ 自动播放';
+    autoStop.classList.remove('show');
+  }
+}
+function clearAutoStep() {
+  document.querySelectorAll('.step.auto-active').forEach((el) => el.classList.remove('auto-active'));
+  document.querySelectorAll('.auto-clicked').forEach((el) => el.classList.remove('auto-clicked'));
+  autoCursor.classList.remove('visible', 'clicking');
+}
+function stopAuto() {
+  autoRunning = false;
+  if (autoWaitTimer) { clearTimeout(autoWaitTimer); autoWaitTimer = null; }
+  clearAutoStep();
+  document.body.classList.remove('auto-playing');
+  setAutoControls();
+}
+async function runAuto() {
+  stopAuto();
+  autoRunning = true;
+  autoDone = false;
+  document.body.classList.add('auto-playing');
+  setAutoControls();
+  autoToggle.textContent = '⏸ 暂停';
+  autoStop.classList.add('show');
+  for (let i = 0; i < steps.length; i += 1) {
+    if (!autoRunning) return;
+    const step = steps[i];
+    document.querySelectorAll('.step.auto-active').forEach((el) => el.classList.remove('auto-active'));
+    step.classList.add('visible', 'auto-active');
+    step.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+    await wait(reduceMotion ? 120 : 950);
+    if (!autoRunning) return;
+    const target = step.querySelector('[data-auto-target]') || step.querySelector('.hotspot');
+    if (target) {
+      if (!reduceMotion) {
+        const rect = target.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        autoCursor.style.left = x + 'px';
+        autoCursor.style.top = y + 'px';
+        autoCursor.classList.add('visible');
+        if (target.classList.contains('hotspot')) {
+          const shot = target.closest('.shot');
+          const sr = shot.getBoundingClientRect();
+          shot.style.setProperty('--focus-x', ((x - sr.left) / sr.width * 100) + '%');
+          shot.style.setProperty('--focus-y', ((y - sr.top) / sr.height * 100) + '%');
+        }
+        await wait(620);
+        if (!autoRunning) return;
+        autoCursor.classList.add('clicking');
+        target.classList.add('auto-clicked');
+        await wait(300);
+        target.classList.remove('auto-clicked');
+        autoCursor.classList.remove('clicking');
+      } else {
+        target.classList.add('auto-clicked');
+        await wait(120);
+        target.classList.remove('auto-clicked');
+      }
+    }
+    await wait(reduceMotion ? 450 : 1350);
+    if (!autoRunning) return;
+    step.classList.remove('auto-active');
+    autoCursor.classList.remove('visible');
+  }
+  autoRunning = false;
+  autoDone = true;
+  document.body.classList.remove('auto-playing');
+  clearAutoStep();
+  setAutoControls();
+  toast.textContent = '教程播放完成';
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2200);
+}
+function toggleAuto() {
+  if (autoRunning) stopAuto();
+  else { autoDone = false; runAuto(); }
+}
+document.querySelectorAll('[data-autoplay]').forEach((button) => button.addEventListener('click', toggleAuto));
+autoToggle.addEventListener('click', toggleAuto);
+autoStop.addEventListener('click', stopAuto);
+setAutoControls();
 </script>
 </body>
 </html>
