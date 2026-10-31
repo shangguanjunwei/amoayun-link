@@ -9,6 +9,7 @@
 npm 包名：`@amoayun/dsh-amoayun-link-plugin`
 
 macOS 动画安装教程：[docs/install-guide.html](https://github.com/shangguanjunwei/amoayun-link/blob/main/docs/install-guide.html)
+macOS PPT 演示稿：[docs/amoayun-link-install-guide.pptx](https://github.com/shangguanjunwei/amoayun-link/blob/main/docs/amoayun-link-install-guide.pptx)
 
 ---
 
